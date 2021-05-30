@@ -127,3 +127,15 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# experiment log file
+logs
+
+# vs code
+.vscode
+
+# put good models
+models
+
+# data for training etc.
+data
