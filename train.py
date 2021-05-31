@@ -69,14 +69,14 @@ def get_parser():
         return arg_line.split()
     parser.convert_arg_line_to_args = convert_arg_line_to_args
     # model parameter
-    parser.add_argument('--alpha', type=float, default=1.0)
+    parser.add_argument('--alpha', type=float, default=1.0, help='representation = alpha * original + (1-alpha) * converted')
     # training
-    parser.add_argument('--batch-size', type=int, default=8)
+    parser.add_argument('--batch-size', type=int, default=8, help='batch size')
     parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')
     parser.add_argument('--lr-decay', type=float, default=5e-5, help='learning rate decay rate')
     parser.add_argument('--l2-panelty', type=float, default=0, help='L2 panelty')
-    parser.add_argument('--max-iter', type=int, default=160000)
-    parser.add_argument('--lambda', type=float, default=10.0)
+    parser.add_argument('--max-iter', type=int, default=160000, help='must stop training after how many iterations')
+    parser.add_argument('--lambda', type=float, default=10.0, help='loss = loss_content + lambda * loss_style')
     # data
     parser.add_argument('--vgg', type=str, help='where the vgg model is')
     parser.add_argument('--content', type=str, help='the folder where content images are')
