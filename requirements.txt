@@ -5,4 +5,4 @@ tqdm
 GitPython>=3.0
 Pillow>=8.0
 opencv-python>=4.0
-image-io>=2.0
+imageio>=2.0
