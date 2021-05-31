@@ -88,7 +88,6 @@ def get_parser():
     parser.add_argument('--pin-memory', action='store_true', default=False, help='whether pin dataset in the memory')
     parser.add_argument('--show-iters', type=int, default=1000, help='show a case every N iters')
     parser.add_argument('--save-interval', type=int, default=10000, help='save the decoder every N iters')
-    parser.add_argument('--reuse', type=str, default=None, help='reuse a previous parameter group')
     return parser
 
 def main():
