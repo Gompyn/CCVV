@@ -41,7 +41,7 @@ def get_data(args):
         transforms.RandomCrop(256),
         transforms.ConvertImageDtype(torch.float)
     ])
-    dataset = ImageDataset(Path(args.content), Path(args.style), image_transform)
+    dataset = ImageDataset(Path(args.content_dir), Path(args.style_dir), image_transform)
     while True:
         yield from data.DataLoader(
             dataset,
@@ -71,30 +71,30 @@ def get_parser():
     # model parameter
     parser.add_argument('--alpha', type=float, default=1.0, help='representation = alpha * original + (1-alpha) * converted')
     # training
-    parser.add_argument('--batch-size', type=int, default=8, help='batch size')
+    parser.add_argument('--batch_size', type=int, default=8, help='batch size')
     parser.add_argument('--lr', type=float, default=1e-4, help='learning rate')
-    parser.add_argument('--lr-decay', type=float, default=5e-5, help='learning rate decay rate')
-    parser.add_argument('--l2-panelty', type=float, default=0, help='L2 panelty')
-    parser.add_argument('--max-iter', type=int, default=160000, help='must stop training after how many iterations')
+    parser.add_argument('--lr_decay', type=float, default=5e-5, help='learning rate decay rate')
+    parser.add_argument('--l2_panelty', type=float, default=0, help='L2 panelty')
+    parser.add_argument('--max_iter', type=int, default=160000, help='must stop training after how many iterations')
     parser.add_argument('--lambda', type=float, default=10.0, help='loss = loss_content + lambda * loss_style')
     # data
-    parser.add_argument('--vgg', type=str, help='where the vgg model is')
-    parser.add_argument('--content', type=str, help='the folder where content images are')
-    parser.add_argument('--style', type=str, help='the folder where style images are')
-    parser.add_argument('--log-root', type=str, default='logs', help='the folder to put all logs')
+    parser.add_argument('--vgg', type=str, default='models/vgg_normalised.pth', help='where the vgg model is')
+    parser.add_argument('--content_dir', type=str, help='the folder where content images are', required=True)
+    parser.add_argument('--style_dir', type=str, help='the folder where style images are', required=True)
+    parser.add_argument('--log_dir', type=str, default='logs', help='the folder to put all logs')
     # misc
-    parser.add_argument('--no-cuda', action='store_true', default=False, help='not use cuda for training')
-    parser.add_argument('--num-workers', type=int, default=len(os.sched_getaffinity(0)), help='how many cpus work for dataset providing')
-    parser.add_argument('--pin-memory', action='store_true', default=False, help='whether pin dataset in the memory')
-    parser.add_argument('--show-iters', type=int, default=1000, help='show a case every N iters')
-    parser.add_argument('--save-interval', type=int, default=10000, help='save the decoder every N iters')
+    parser.add_argument('--no_cuda', action='store_true', default=False, help='not use cuda for training')
+    parser.add_argument('--num_workers', type=int, default=max(len(os.sched_getaffinity(0))-1, 0), help='how many cpus work for dataset providing')
+    parser.add_argument('--pin_memory', action='store_true', default=False, help='whether pin dataset in the memory')
+    parser.add_argument('--show_iters', type=int, default=1000, help='show a case every N iters')
+    parser.add_argument('--save_model_interval', type=int, default=10000, help='save the decoder every N iters')
     return parser
 
 def main():
     parser = get_parser()
     args = parser.parse_args()
 
-    log_root = Path(args.log_root)
+    log_root = Path(args.log_dir)
     assert log_root.is_dir(), 'log root should be a folder'
     log_dir = log_root / time.strftime('%Y-%m-%d_%H-%M-%S')
     log_dir.mkdir(exist_ok=False)
@@ -163,7 +163,7 @@ def main():
                     writer.add_images('train/examples/content', content, update_times)
                     writer.add_images('train/examples/style', style, update_times)
                     writer.add_images('train/examples/result', get_model_output(content, style), update_times)
-            if update_times % args.save_interval == 0 or update_times == args.max_iter:
+            if update_times % args.save_model_interval == 0 or update_times == args.max_iter:
                 save_decoder(save_dir / f'decoder_iter{update_times}.pth')
         except KeyboardInterrupt:
             update_times = iter + 1
