@@ -84,7 +84,7 @@ def get_parser():
     parser.add_argument('--log_dir', type=str, default='logs', help='the folder to put all logs')
     # misc
     parser.add_argument('--no_cuda', action='store_true', default=False, help='not use cuda for training')
-    parser.add_argument('--num_workers', type=int, default=max(len(os.sched_getaffinity(0))-1, 0), help='how many cpus work for dataset providing')
+    parser.add_argument('--num_workers', type=int, default=os.cpu_count()-1 if os.cpu_count() is not None and os.cpu_count() > 0 else 0, help='how many cpus work for dataset providing')
     parser.add_argument('--pin_memory', action='store_true', default=False, help='whether pin dataset in the memory')
     parser.add_argument('--show_iters', type=int, default=1000, help='show a case every N iters')
     parser.add_argument('--save_model_interval', type=int, default=10000, help='save the decoder every N iters')
