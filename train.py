@@ -28,6 +28,8 @@ class ImageDataset(data.Dataset):
 
         content_index = index % len(self.content_paths)
         style_index = index // len(self.content_paths)
+        print(f'content: {self.content_paths[content_index]}')
+        print(f'style: {self.style_paths[style_index]}')
         content_image = read_image(str(self.content_paths[content_index]))
         style_image = read_image(str(self.style_paths[style_index]))
         return self.transform(content_image), self.transform(style_image)
