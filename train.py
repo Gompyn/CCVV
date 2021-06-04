@@ -24,13 +24,18 @@ class ImageDataset(data.Dataset):
         self.transform = transform
 
     def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
-        from PIL import Image
+        try:
+            from PIL import Image
 
-        content_index = index % len(self.content_paths)
-        style_index = index // len(self.content_paths)
-        content_image = Image.open(self.content_paths[content_index])
-        style_image = Image.open(self.style_paths[style_index])
-        return self.transform(content_image), self.transform(style_image)
+            content_index = index % len(self.content_paths)
+            style_index = index // len(self.content_paths)
+            content_image = Image.open(self.content_paths[content_index])
+            style_image = Image.open(self.style_paths[style_index])
+            return self.transform(content_image), self.transform(style_image)
+        except:
+            print(self.content_paths[content_index])
+            print(self.style_paths[style_index])
+            raise
 
     def __len__(self):
         return len(self.content_paths) * len(self.style_paths)
