@@ -24,12 +24,12 @@ class ImageDataset(data.Dataset):
         self.transform = transform
 
     def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
-        from torchvision.io import read_image
+        from PIL import Image
 
         content_index = index % len(self.content_paths)
         style_index = index // len(self.content_paths)
-        content_image = read_image(str(self.content_paths[content_index]))
-        style_image = read_image(str(self.style_paths[style_index]))
+        content_image = Image.open(self.content_paths[content_index])
+        style_image = Image.open(self.style_paths[style_index])
         return self.transform(content_image), self.transform(style_image)
 
     def __len__(self):
@@ -39,7 +39,7 @@ def get_data(args):
     image_transform = transforms.Compose([
         transforms.Resize((512, 512)),
         transforms.RandomCrop(256),
-        transforms.ConvertImageDtype(torch.float)
+        transforms.ToTensor()
     ])
     dataset = ImageDataset(Path(args.content_dir), Path(args.style_dir), image_transform)
     while True:
