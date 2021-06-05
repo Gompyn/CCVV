@@ -1,5 +1,5 @@
 import torch
-
+import torch.nn as nn
 
 def calc_mean_std(feat, eps=1e-5):
     # eps is a small value added to the variance to avoid divide-by-zero.
@@ -65,3 +65,13 @@ def coral(source, target):
                         target_f_mean.expand_as(source_f_norm)
 
     return source_f_transfer.view(source.size())
+
+def square(w):
+    t = nn.ReplicationPad2d(1)
+    ww = t(w)
+    right = (ww[:, :, 1:-2, 2:-1] - ww[:, :, 1:-2, 1:-2])**2
+    left = (ww[:, :, 1:-2, 0:-3] - ww[:, :, 1:-2, 1:-2])**2
+    up = (ww[:, :, 0:-3, 1:-2] - ww[:, :, 1:-2, 1:-2])**2
+    down = (ww[:, :, 1:-2, 1:-2] - ww[:, :, 2:-1, 1:-2])**2
+    ans = right + left + up + down
+    return ans

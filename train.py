@@ -23,13 +23,18 @@ class ImageDataset(data.Dataset):
         self.transform = transform
 
     def __getitem__(self, index) -> Tuple[torch.Tensor, torch.Tensor]:
-        from torchvision.io import read_image
+        try:
+            from PIL import Image
 
-        content_index = index % len(self.content_paths)
-        style_index = index // len(self.content_paths)
-        content_image = read_image(str(self.content_paths[content_index]))
-        style_image = read_image(str(self.style_paths[style_index]))
-        return self.transform(content_image), self.transform(style_image)
+            content_index = index % len(self.content_paths)
+            style_index = index // len(self.content_paths)
+            content_image = Image.open(self.content_paths[content_index])
+            style_image = Image.open(self.style_paths[style_index])
+            return self.transform(content_image), self.transform(style_image)
+        except:
+            print(self.content_paths[content_index])
+            print(self.style_paths[style_index])
+            raise
 
     def __len__(self):
         return len(self.content_paths) * len(self.style_paths)
@@ -38,7 +43,7 @@ def get_data(args):
     image_transform = transforms.Compose([
         transforms.Resize((512, 512)),
         transforms.RandomCrop(256),
-        transforms.ConvertImageDtype(torch.float)
+        transforms.ToTensor()
     ])
     dataset = ImageDataset(Path(args.content_dir), Path(args.style_dir), image_transform)
     while True:
@@ -144,11 +149,13 @@ def main():
             content, style = next(data_iter)
             content, style = content.to(device), style.to(device)
             model.train()
-            loss_c, loss_s = model.forward(content, style, args.alpha)
-            loss = loss_c + loss_s * getattr(args, 'lambda')
+            loss_c, loss_s, loss_r, loss_g = model.forward(content, style, args.alpha)
+            loss = loss_c + loss_s * getattr(args, 'lambda') + loss_r + loss_g
             writer.add_scalars('loss/train', {
                 'loss_content': loss_c.item(),
                 'loss_style': loss_s.item(),
+                'loss_restruction': loss_r.item(),
+                'loss_gradient': loss_g.item(),
                 'loss': loss.item()
             }, iter)
             optimizer.zero_grad()

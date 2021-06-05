@@ -138,19 +138,34 @@ class Net(nn.Module):
                self.mse_loss(input_std, target_std)
                #计算风格损失
 
+    def calc_gradient_loss(self,input,target):
+        assert (input.size() == target.size())
+        assert (target.requires_grad is False)
+        #f代表用于计算梯度矩阵的函数
+        return self.mse_loss(f(input),f(target))
+
     def forward(self, content, style, alpha=1.0):
         assert 0 <= alpha <= 1
         style_feats = self.encode_with_intermediate(style)
         content_feat = self.encode(content)
+
+        r_c = self.decoder(content_feat)
+        loss_r_c = self.mse_loss(content,r_c)
+        r_s = self.decoder(style_feats[-1])
+        loss_r_s = self.mse_loss(style,r_s)
+        loss_r = loss_r_c + loss_r_s
+
         t = adain(content_feat, style_feats[-1])
         t = alpha * t + (1 - alpha) * content_feat
 
         g_t = self.decoder(t)
         g_t_feats = self.encode_with_intermediate(g_t)
 
+        loss_g = self.calc_gradient_loss(g_t_feats[-1], t)
+
         loss_c = self.calc_content_loss(g_t_feats[-1], t)
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])
         for i in range(1, 4):
             loss_s += self.calc_style_loss(g_t_feats[i], style_feats[i])
-        return loss_c, loss_s
+        return loss_c, loss_s, loss_r, loss_g
         #前传部分
