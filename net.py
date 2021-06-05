@@ -2,6 +2,7 @@ import torch.nn as nn
 
 from function import adaptive_instance_normalization as adain
 from function import calc_mean_std
+from function import square
 
 decoder = nn.Sequential(
     nn.ReflectionPad2d((1, 1, 1, 1)),
@@ -142,7 +143,7 @@ class Net(nn.Module):
         assert (input.size() == target.size())
         assert (target.requires_grad is False)
         #f代表用于计算梯度矩阵的函数
-        return self.mse_loss(f(input),f(target))
+        return self.mse_loss(square(input),square(target))
 
     def forward(self, content, style, alpha=1.0):
         assert 0 <= alpha <= 1
