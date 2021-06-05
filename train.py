@@ -1,5 +1,4 @@
 import sys
-
 from function import adaptive_instance_normalization as adain
 from typing import Tuple
 import torch
