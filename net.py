@@ -152,7 +152,7 @@ class Net(nn.Module):
 
         r_c = self.decoder(content_feat)
         loss_r_c = self.mse_loss(content,r_c)
-        r_s = self.decoder(style_feats[-1])
+        r_s = self.decoder(style_feats)
         loss_r_s = self.mse_loss(style,r_s)
         loss_r = loss_r_c + loss_r_s
 
@@ -162,7 +162,7 @@ class Net(nn.Module):
         g_t = self.decoder(t)
         g_t_feats = self.encode_with_intermediate(g_t)
 
-        loss_g = self.calc_gradient_loss(g_t_feats[-1], t)
+        loss_g = self.calc_gradient_loss(g_t_feats, t)
 
         loss_c = self.calc_content_loss(g_t_feats[-1], t)
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])

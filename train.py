@@ -150,7 +150,7 @@ def main():
             content, style = content.to(device), style.to(device)
             model.train()
             loss_c, loss_s, loss_r, loss_g = model.forward(content, style, args.alpha)
-            loss = loss_c + loss_s * getattr(args, 'lambda') + loss_r + loss_g
+            loss = loss_c + loss_s * getattr(args, 'lambda') + loss_r * getattr(args, 'lambda') + loss_g * getattr(args, 'lambda')
             writer.add_scalars('loss/train', {
                 'loss_content': loss_c.item(),
                 'loss_style': loss_s.item(),
