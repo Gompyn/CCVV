@@ -152,7 +152,7 @@ class Net(nn.Module):
 
         r_c = self.decoder(content_feat)
         loss_r_c = self.mse_loss(content,r_c)
-        r_s = self.decoder(style_feats)
+        r_s = self.decoder(style_feats[-1])
         loss_r_s = self.mse_loss(style,r_s)
         loss_r = loss_r_c + loss_r_s
 
