@@ -150,7 +150,7 @@ class Net(nn.Module):
         style_feats = self.encode_with_intermediate(style)
         content_feat = self.encode(content)
 
-        r_c = self.decoder(content_feat[0])
+        r_c = self.decoder(content_feat[1])
         loss_r_c = self.mse_loss(content,r_c)
         r_s = self.decoder(style_feats[-1])
         loss_r_s = self.mse_loss(style,r_s)
