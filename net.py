@@ -106,9 +106,9 @@ class Net(nn.Module):
 #nn.Sequential作用是传参
 
         # fix the encoder
-        for name in ['enc_1', 'enc_2', 'enc_3', 'enc_4']:
-            for param in getattr(self, name).parameters():
-                param.requires_grad = False
+        # for name in ['enc_1', 'enc_2', 'enc_3', 'enc_4']:
+        #     for param in getattr(self, name).parameters():
+        #         param.requires_grad = False
 
     # extract relu1_1, relu2_1, relu3_1, relu4_1 from input image
     def encode_with_intermediate(self, input):
@@ -126,13 +126,11 @@ class Net(nn.Module):
 
     def calc_content_loss(self, input, target):
         assert (input.size() == target.size())
-        assert (target.requires_grad is False)
         return self.mse_loss(input, target)
         #计算内容损失
 
     def calc_style_loss(self, input, target):
         assert (input.size() == target.size())
-        assert (target.requires_grad is False)
         input_mean, input_std = calc_mean_std(input)
         target_mean, target_std = calc_mean_std(target)
         return self.mse_loss(input_mean, target_mean) + \
@@ -162,7 +160,7 @@ class Net(nn.Module):
         g_t = self.decoder(t)
         g_t_feats = self.encode_with_intermediate(g_t)
 
-        loss_g = self.calc_gradient_loss(g_t_feats[-1], t)
+        loss_g = self.calc_gradient_loss(g_t, content)
 
         loss_c = self.calc_content_loss(g_t_feats[-1], t)
         loss_s = self.calc_style_loss(g_t_feats[0], style_feats[0])

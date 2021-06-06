@@ -123,7 +123,6 @@ def main():
     vgg_path = Path(args.vgg)
     assert vgg_path.exists(), 'invalid vgg file'
     net.vgg.load_state_dict(torch.load(vgg_path.open('rb')))
-    net.vgg.requires_grad_(False)
     model = net.Net(net.vgg, net.decoder)
 
     def save_decoder(path: Path):
@@ -131,6 +130,12 @@ def main():
         for key in decoder_dict.keys():
             decoder_dict[key] = decoder_dict[key].to('cpu')
         torch.save(decoder_dict, path.open('wb'))
+    
+    def save_vgg(path: Path):
+        vgg_dict = net.vgg.state_dict()
+        for key in vgg_dict.keys():
+            vgg_dict[key] = vgg_dict[key].to('cpu')
+        torch.save(vgg_dict, path.open('wb'))
 
     def get_model_output(content, style):
         content_feats, style_feats = model.encode(content), model.encode(style)
@@ -171,9 +176,11 @@ def main():
                     writer.add_images('train/examples/result', get_model_output(content, style), update_times)
             if update_times % args.save_model_interval == 0 or update_times == args.max_iter:
                 save_decoder(save_dir / f'decoder_iter{update_times}.pth')
+                save_vgg(save_dir / f'vgg_iter{update_times}.pth')
         except KeyboardInterrupt:
             update_times = iter + 1
             save_decoder(save_dir / f'decoder_iter{update_times}.pth')
+            save_vgg(save_dir / f'vgg_iter{update_times}.pth')
             break
 
 
